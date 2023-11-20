@@ -262,26 +262,32 @@ lectura:    SUBS    R3,R3,#1            ; E2533001 ; Restamos uno al contador y 
 /------------------------------- Secuencia 3 --------------------------------/
 /----------------------------------------------------------------------------/
 
-sec3:       ADD r4, r0, #0x1f           ; E280401F ; Contador de palabras de la tabla
-            ADD r5, r0, #44             ; E2805028 ; Guardamos el valor de la primer palabra de la secuencia
+            SUB R1,R1.R1
+            SUB R5,R5,R5
+            SUB R7,R7,r7
+            SUB R8,R8,R8
+            SUB R6,R6,R6
+sec1:       LDR r5, [r0, #4]           ; E5905004 ; Cargamos el valor de tabla del delay
+            ADD r7, r0, #12            ; E2807008 ; Guardamos el valor de la primer palabra de la secuencia
+            ADD r8,r0,#16               ; E2808008 ; Contador de palabras de la tabla
 
-loop1:      LDR r2, [r5]                ; E5952000 ; Lee el dato de la tabla guardado en r2
-            STR r2, [r0, #0x800]        ; E5802800 ; Sacamos la luz al puerto del LED
-            LDR r9, [r0, #4]            ; E5909004 ; Cargamos en el registro el valor de tabla del delay 
+loop1:      LDR r9, [r7]               ; E5979000 ; Lee el dato guardado en R7 (led a prender)
+            STR r9, [r0, #0x800]       ; E5809800 ; Saca la luz al puerto
+            ADD r6,r0,r5               ; E0806005 ; Guardamos en r6 el valor del delay en r5
 
-delay:      SUBS r9, r9, #1             ; E2599001 ; Resta 1 hasta llegar a cero
-            BNE delay                   ; 1AFFFFFD ;
+delay:      SUBS r6, r6, #1            ; E2566001 ; Restamos hasta llegar a cero
+            BNE #0x120                 ; 1AFFFFFD ;
 
-            ADD r5, r5, #4              ; E2855004 ; Aumentamos en 4 para pasar a la proxima palabra de tabla
-            SUBS r4, r4, #1             ; E2544001 ; Restamos 1 al contador de instrucciones
-            ADDEQ r4,r0,#0x1f           ; 0280401F ; Si llega a cero, suma la cantidad de lineas de la tabla
-            ADDEQ r5,r0,#44             ; 02805028 ; Y vuelve a la primer palabra de la secuencia
-            ADD R3,R0,#0x2              ; E2803002 ; Contador de doble lectura
+            ADD r7, r7, #4             ; E2877004 ; Aumentamos en 4 para pasar a la proxima palabra de tabla
+            SUBS r8,r8,#1              ; E2588001 ; Restamos 1 al contador de instrucciones
+            ADDEQ r7,r0,#12            ; 02807008 ; Si llega a cero, suma la cantidad de lineas de la tabla
+            ADDEQ r8,r8,#16             ; 02888008 ; Y vuelve a la primer palabra de la secuencia
+            ADD R3,R0,#0x2             ; E2803002 ; Contador de doble lectura
 
-lectura:    SUBS R3,R3,#1               ; E2533001 ; Lectura del puerto
-            LDR  R1,[R0,#0x800]         ; E5901800 ; 
-            BNE  lectura                ; 1AFFFFFC ;
+lectura:    SUBS R3,R3,#1              ; E2533001 ; Lectura del puerto
+            LDR R1,[R0,#0x800]         ; E5901800 ;
+            BNE lectura                ; 1AFFFFFC ;
 
-            ANDS R1,R1,#0x04            ; E2111004 ; Mascara: verifica que se haya apagado el pin_B9
-            BEQ inicio                  ; 0AFFFF72 ;     
-            BNE loop1                   ; 1AFFFFEF ; Si no se apaga el PIN_B9 vuelve a la secuencia
+            ANDS R1,R1,#0x01           ; E2111001 ; Mascara: verifica que se haya apagado el pin_M1
+            BEQ inicio                 ; 0AFFFFAC ;
+            BNE loop1                  ; 1AFFFFEF ; Si no se apaga el PIN_M1 vuelve a la secuencia
