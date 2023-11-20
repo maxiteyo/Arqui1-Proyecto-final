@@ -1,4 +1,4 @@
-Inicio:
+Password:
     SUB     R0, R15, R15
     ADD     R2, R0, #0x01   // luces a prender
     ADD     R8, R0, #3   // contador de intentos
