@@ -1,6 +1,6 @@
 sec1:       LDR r5, [r0, #4]           Cargamos el valor de tabla del delay
             ADD r7, r0, #12             Guardamos el valor de la primer palabra de la secuencia
-            ADD r8,r0,#33              Contador de palabras de la tabla
+            ADD r8,r0,#58              Contador de palabras de la tabla (IR MODIFICANDO)
 
 loop1:      LDR r9, [r7]               Lee el dato guardado en R7 (led a prender)
             STR r9, [r0, #0x800]       Saca la luz al puerto
@@ -12,6 +12,6 @@ delay:      SUBS r6, r6, #1            Restamos hasta llegar a cero
             ADD r7, r7, #4             Aumentamos en 4 para pasar a la proxima palabra de tabla
             SUBS r8,r8,#1              Restamos 1 al contador de instrucciones
             ADDEQ r7,r0,#12             Si llega a cero, suma la cantidad de lineas de la tabla
-            ADDEQ r8,r8,#33            Y vuelve a la primer palabra de la secuencia
+            ADDEQ r8,r8,#58            Y vuelve a la primer palabra de la secuencia (IR MODIFICANDO)
                        
             B #0xC               Si no se apaga el PIN_M1 vuelve a la secuencia (Como esta separado vuelve al inicio)

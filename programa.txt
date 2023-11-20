@@ -1,0 +1,35 @@
+Password:
+    SUB     R0, R15, R15
+    ADD     R2, R0, #0x01   // luces a prender
+    ADD     R8, R0, #3   // contador de intentos
+
+Intento:
+    STR     R2, [R0, #0x800]
+    ADD     R2, R2, R2   // sumador para encender luces
+
+    Vuelta:
+    ADD     R4, R0, #2      // Movemos un 2 al registro R4, contador para el bucle de lectura
+
+Lectura:
+    SUBS    R4, R4, #0x01   // Restamos uno al contador y actualizamos banderas
+    LDR     R1, [R0, #0x800]   // Leemos el puerto, guardando en R1 los valores de los switches y del key_1
+    BNE     Lectura         // lectura #0x18
+
+    ANDS    R6, R1, #0x10   // Verificamos pin E1 apagado (botón presionado)
+    BEQ     Verificacion    // verificacion #0x30
+    B       Vuelta          // Vuelta #0x14
+
+
+Verificacion:
+    ANDSEQ  R5, R1, #0x0F    // Primer máscara, verificamos switches encendidos
+    BEQ     MENU            // menu  #0x50
+    SUBS    R8, R8, #1   // resto contador de intentos
+    BNE     Intento         // Intento si el contador no esta en cero #0xC
+    B       Fallo         // Si esta en cero fallo  #0x44
+
+Fallo:
+    ADD     R7, R0, #0xFF   // prende todas las luces
+    STR     R7, [R0, #0x800]
+    B       Fallo           // fallo  #0x44
+
+MENU:  ...
