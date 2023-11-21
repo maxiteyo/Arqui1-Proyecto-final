@@ -80,7 +80,7 @@ lectura:    SUBS    R3, R3, #1           Restamos uno al contador y actualizamos
             SUB R2,R2,R2
             SUB R3,R3,R3
 
-sel1:       AND     R2, R1, #0x01        Movemos un 1 a R2 //47  
+sel1:       ADD     R2, R1, #0x01        Movemos un 1 a R2 //47  
             STR     R2, [R0, #0x800]     Sacamos al puerto la luz 1, correspondiente a la opcion elegida
 
 vuelta:     ADD     R3, R0, #2           Movemos un 2 al registro R3, contador para el bucle de lectura  //49   
@@ -102,7 +102,7 @@ lectura:    SUBS    R3, R3, #1           Restamos uno al contador y actualizamos
             SUB R1,R1,R1  //58
             SUB R2,R2,R2
             SUB R3,R3,R3
-sel2:       AND     R2, R1, #0x02      Movemos un 2 a R2   //61
+sel2:       ADD     R2, R1, #0x02      Movemos un 2 a R2   //61
             STR     R2, [R0, #0x800]    Sacamos al puerto la luz 2, correspondiente a la opcion elegida
 
 vuelta:     ADD     R3, R0, #2          Movemos un 2 al registro R3, contador para el bucle de lectura  //63 
@@ -124,7 +124,7 @@ lectura:    SUBS    R3, R3, #1          Restamos uno al contador y actualizamos 
             SUB R1,R1,R1   //72
             SUB R2,R2,R2
             SUB R3,R3,R3
-sel3:       AND     R2, R1, #0x04       Movemos un 4 a R2   //75
+sel3:       ADD     R2, R1, #0x04       Movemos un 4 a R2   //75
             STR     R2, [R0, #0x800]    Sacamos al puerto la luz 3, correspondiente a la opcion elegida
 
 vuelta:     ADD     R3, R0, #2         Movemos un 2 al registro R3, contador para el bucle de lectura  //77
@@ -147,7 +147,7 @@ lectura:    SUBS    R3, R3, #1         Restamos uno al contador y actualizamos b
             SUB R1,R1,R1  //86
             SUB R2,R2,R2
             SUB R3,R3,R3
-sel4:       AND     R2, R1, #0x08      Movemos un 8 a R2   //89
+sel4:       ADD     R2, R1, #0x08      Movemos un 8 a R2   //89
             STR     R2, [R0, #0x800]    Sacamos al puerto la luz 4, correspondiente a la opcion elegida
 
 vuelta:     ADD     R3, R0, #2          Movemos un 2 al registro R3, contador para el bucle de lectura   //91
@@ -310,82 +310,612 @@ lectura:    SUBS R3,R3,#1                Lectura del puerto  //190
             SUB R6,R6,R6
             SUB R7,R7,R7
             SUB R8,R8,R8
-            SUB R9,R9,R9
+            SUB R0,R0,R0
             SUB R0,R0,R0
 
-sec4:       ADD     R4, R0, #5           Movemos un 5 al registro R5, contador del loop1 //205
-            ADD     R8, R0, #0           Movemos un 0 al registro R8, contador de luces encendidas
-            ADD     R6, R0, #0x81        Movemos el valor 0x80 al registro R6, sera nuestro registro de luces  //
+sec4:       ADD     R4, R0, #5          ; E2804005 ; Movemos un 5 al registro R5, contador del loop1   //205
+            ADD     R8, R0, #0          ; E2808000 ; Movemos un 0 al registro R8, contador de luces encendidas
+            ADD     R6, R0, #0x81       ; E2806080 ; Movemos el valor 0x80 al registro R6, sera nuestro registro de luces ///poner 81
 
-loop1:      STR     R6, [R0, #0x800]     Sacamos luz al puerto   //208
-            ADD     R5, R0, #4           Movemos un 6 al registro R5, contador de la division    //modificop y pongo 4
-            ADD     R7, R0, #1          Movemos un 1 al registro R7, acumulador de la division
-            SUB     R5, R5, R8          Corregimos R5 segun la cantidad de luces que hemos encendido
+loop1:      STR     R6, [R0, #0x800]    ; E5806800 ; Sacamos luz al puerto  //208
+            ADD     R5, R0, #4          ; E2805006 ; Movemos un 6 al registro R5, contador de la division ///poner 4
+            ADD     R7, R0, #1          ; E2807001 ; Movemos un 1 al registro R7, acumulador de la division
+            SUB     R5, R5, R8          ; E0455008 ; Corregimos R5 segun la cantidad de luces que hemos encendido
 
-division:   SUBS    R5, R5, #1           Restamos uno al contador y actualizamos banderas  //212
-            ADD     R7, R7, R7          Acumulamos R7
-            BNE     division            #0x350  
+division:   SUBS    R5, R5, #1          ; E2555001 ; Restamos uno al contador y actualizamos banderas   //212
+            ADD     R7, R7, R7          ; E0877007 ; Acumulamos R7
+            BNE     division     #0x350       ; 1AFFFFFC ;
 
-            ADD     R8, R8, #1           Sumamos uno a R8, correspondiente a la luz encendida
-            SUB     R6, R6, R7           Division de R6 por 2
-            LDR     R9, [R0, #0x4]       Lectura del delay desde tabla, guardamos en el registro R9
+            ADD     R8, R8, #1          ; E2888001 ; Sumamos uno a R8, correspondiente a la luz encendida
+            SUB     R6, R6, R7          ; E0466007 ; Division de R6 por 2
+            LDR     R9, [R0, #0x4]      ; E5909004 ; Lectura del delay desde tabla, guardamos en el registro R9
 
-delay1       SUBS    R9, R9, #1           Restamos uno al contador y actualizamos banderas   //218
-            BNE     delay1             #0x368  
+delay       SUBS    R9, R9, #1          ; E2599001 ; Restamos uno al contador y actualizamos banderas    //218
+            BNE     delay     #0x368          ; 1AFFFFFD ;
 
-            SUBS    R4, R4, #1          Restamos uno al contador del loop y actualizamos banderas
-            BNE     loop1             #0x340  
+            SUBS    R4, R4, #1          ; E2544001 ; Restamos uno al contador del loop y actualizamos banderas
+            BNE     loop1               #0x340; 1AFFFFF1 ;
 
-            ADD     R6, R0, #0x02        Movemos a R6 el valor 0x02, correspondiente al segundo led menos significativo  
-            ADD     R4, R0, #3          Movemos un 3 al registro R4, contador del loop2   
-            ADD     R10, R6, R6          Multiplicamos R6 por 2 y lo guardamos en R10
-            ADD     R8, R0, #0          Volvemos R8 a 0, cumplira el mismo proposito
-            ADD     R3,R0,#0x2           Movemos un 2 al registro R3, contador para el bucle de lectura  
+            ADD     R6, R0, #0x08       ; E2806008 ; Movemos a R6 el valor 0x08, correspondiente al cuarto led menos significativo
+            ADD     R4, R0, #3          ; E2804003 ; Movemos un 3 al registro R4, contador del loop2
+            ADD     R10, R6, R6         ; E086A006 ; Multiplicamos R6 por 2 y lo guardamos en R10
+            ADD     R8, R0, #0          ; E2808000 ; Volvemos R8 a 0, cumplira el mismo proposito
+            ADD     R3,R0,#0x2          ; E2803002 ; Movemos un 2 al registro R3, contador para el bucle de lectura
 
-lectura:    SUBS    R3,R3,#1            Restamos uno al contador y actualizamos banderas   //227
-            LDR     R1,[R0,#0x800]       Leemos el puerto, guardando en R1 los valores de los switches y del key_1
-            BNE     lectura             #0x38C
+lectura:    SUBS    R3,R3,#1            ; E2533001 ; Restamos uno al contador y actualizamos banderas    //227
+            LDR     R1,[R0,#0x800]      ; E5901800 ; Leemos el puerto, guardando en R1 los valores de los switches y del key_1
+            BNE     lectura      #0x38c       ; 1AFFFFFC ;
 
-            ANDS    R1,R1,#0x08         Primer mascara, verificamos que el pin_M15 se haya apagado
-            BEQ     menu                #0x50
+            ANDS    R1,R1,#0x08         ; E2111008 ; Primer mascara, verificamos que el pin_M15 se haya apagado
+            BEQ     menu      #0x50        ; 0AFFFF56 ;
 
-loop2:      ADD     R5, R0, #6           Movemos un 2 al registro R5, contador de la division  //232
-            ADD     R7, R0, #1          Movemos un 1 al registro R7, acumulador de la division
-            SUBS    R5, R5, R8           Corregimos R5 segun la cantidad de luces que hayamos encendido
-            BEQ     delay2             #0x3D4      En caso de ser 0, debemos evitar el loop division
+loop2:      ADD     R5, R0, #2          ; E2805002 ; Movemos un 2 al registro R5, contador de la division    //232 /// poer 6
+            ADD     R7, R0, #1          ; E2807001 ; Movemos un 1 al registro R7, acumulador de la division
+            SUBS    R5, R5, R8          ; E0555008 ; Corregimos R5 segun la cantidad de luces que hayamos encendido
+            BEQ     salto   #0x3BC            ; 0A000002 ; En caso de ser 0, debemos evitar el loop division
 
-division:   SUBS    R5, R5, #1           Restamos uno al contador y actualizamos banderas   //236
-            ADD     R7, R7, R7           Acumulamos R7
-            BNE     division            #0x3B0
+division:   SUBS    R5, R5, #1          ; E2555001 ; Restamos uno al contador y actualizamos banderas     //236
+            ADD     R7, R7, R7          ; E0877007 ; Acumulamos R7
+            BNE     division    #0x3B0        ; 1AFFFFFC ;
 
-            ADD     R8, R8, #1          Sumamos uno a R8, correspondiente a la luz encendida  
-            SUB     R6, R6, R7           Division de R6 por 2
-            ORR     R11, R10, R6         Mediante una OR logica, unimos las 2 señales para formar una sola
-            STR     R11, [R0, 0x800]     Sacamos luz al puerto
-            ADD     R10, R10, R10       Multiplicamos R10 por 2
-            LDR     R9, [R0, #0x8]      Lectura del delay desde tabla, guardamos en el registro R9
+            ADD     R8, R8, #1          ; E2888001 ; Sumamos uno a R8, correspondiente a la luz encendida
+            SUB     R6, R6, R7          ; E0466007 ; Division de R6 por 2
+            ORR     R11, R10, R6        ; E18AB006 ; Mediante una OR logica, unimos las 2 señales para formar una sola
+            STR     R11, [R0, 0x800]    ; E580B800 ; Sacamos luz al puerto
+            ADD     R10, R10, R10       ; E08AA00A ; Multiplicamos R10 por 2
+            LDR     R9, [R0, #0x8]      ; E5909004 ; Lectura del delay desde tabla, guardamos en el registro R9
 
-delay2       SUBS    R9, R9, #1           Restamos uno al contador y actualizamos banderas  //245
-            BNE     delay2            #0x3D4   
+delay       SUBS    R9, R9, #1          ; E2599001 ; Restamos uno al contador y actualizamos banderas    //245
+            BNE     delay  #0x3D4             ; 1AFFFFFD ;
 
-            SUBS    R4, R4, #1           Restamos uno al contador del loop
-            BNE     loop2              #0x3A0 
+            SUBS    R4, R4, #1          ; E2544001 ; Restamos uno al contador del loop
+            BNE     loop2    #0x3A0           ; 1AFFFFEE ;
 
-            ADD     R6, R0, #0x81       Movemos un 0 al registro R6, correspondiente a la ultima luz de la secuencia
-            STR     R6, [R0, 0x800]      Sacamos luz al puerto
+            ADD     R6, R0, #0x00       ; E2806000 ; Movemos un 0 al registro R6, correspondiente a la ultima luz de la secuencia
+            STR     R6, [R0, 0x800]     ; E5806800 ; Sacamos luz al puerto
 
-            LDR     R9, [R0, #0x8]      Lectura del delay desde tabla, guardamos en el registro R9  // ver en que parte del dmen esta lo del delay
+            LDR     R9, [R0, #0x8]      ; E5909004 ; Lectura del delay desde tabla, guardamos en el registro R9
 
-delay3       SUBS    R9, R9, #1          Restamos uno al contador y actualizamos banderas   //252
-            BNE     delay3         #0x3F0      
+delay       SUBS    R9, R9, #1          ; E2599001 ; Restamos uno al contador y actualizamos banderas     //252
+            BNE     delay   #0x3F0            ; 1AFFFFFD ;
 
-            ADD     R3,R0,#0x2          Movemos un 2 al registro R3, contador para el bucle de lectura
+            ADD     R3,R0,#0x2          ; E2803002 ; Movemos un 2 al registro R3, contador para el bucle de lectura
 
-lectura:    SUBS    R3,R3,#1             Restamos uno al contador y actualizamos banderas   //255
-            LDR     R1,[R0,#0x800]       Leemos el puerto, guardando en R1 los valores de los switches y del key_1
-            BNE     lectura             #0x3FC
+lectura:    SUBS    R3,R3,#1            ; E2533001 ; Restamos uno al contador y actualizamos banderas    //255
+            LDR     R1,[R0,#0x800]      ; E5901800 ; Leemos el puerto, guardando en R1 los valores de los switches y del key_1
+            BNE     lectura   #0x3FC          ; 1AFFFFFC ;
 
-            ANDS    R1,R1,#0x08          Segunda mascara, verificamos que el pin_M15 se haya apagado
-            BEQ     menu  #0x50             
-            BNE     sec4    #0x310           De no haberse apagado, repetimos la secuencia
+            ANDS    R1,R1,#0x08         ; E2111008 ; Segunda mascara, verificamos que el pin_M15 se haya apagado
+            BEQ     menu    #0x50          ; 0AFFFF3D ;
+            BNE     sec4 #0x310               ; 1AFFFFCA ; De no haberse apagado, repetimos la secuencia
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    SUB     R0, R15, R15    
+    ADD     R2, R0, #0x01  
+    ADD     R8, R0, #3   
+    STR     R2, [R0, #0x800]   
+    ADD     R2, R2, R2   
+    ADD     R4, R0, #2     
+    SUBS    R4, R4, #0x01   
+    LDR     R1, [R0, #0x800]   
+    BNE    #0x18
+    ANDS    R6, R1, #0x10   
+    BEQ     #0x30
+    B     #0x14
+    ANDSEQ  R5, R1, #0x0F    
+    BEQ     #0x50
+    SUBS    R8, R8, #1   
+    BNE     #0xC
+    B       #0x44
+    ADD     R7, R0, #0xFF   
+    STR     R7, [R0, #0x800]
+    B       #0x44
+            SUB R1,R1,R1  
+            SUB R2,R2,R2
+            SUB R3,R3,R3
+    ADD     R2, R0, #0x80       
+    STR     R2, [R0, #0x800]     
+    ADD     R3, R0, #2           
+    SUBS    R3, R3, #1           
+    LDR     R1, [R0, #0x800]                 
+    BNE     #0x68
+    ANDS    R2, R1, #0x0F        
+    BEQ     #0x64
+    ANDSNE  R2, R1, #0x01       
+    STRNE   R0, [R0, #0x800]     
+    BNE     #0xB0
+    ANDSEQ  R2, R1, #0x02        
+    STRNE   R0, [R0, #0x800]     
+    BNE     #0xE8
+    ANDSEQ  R2, R1, #0x04       
+    STRNE   R0, [R0, #0x800]     
+    BNE     #0x120
+    ANDSEQ  R2, R1, #0x08        
+    STRNE   R0, [R0, #0x800]     
+    BNE    #0x158
+    B      #0x50   
+    SUB R1,R1,R1   
+    SUB R2,R2,R2
+    SUB R3,R3,R3
+    ADD     R2, R1, #0x01        
+    STR     R2, [R0, #0x800]     
+    ADD     R3, R0, #2             
+    SUBS    R3, R3, #1           
+    LDR     R1, [R0, #0x800]                 
+    BNE    #0xC8
+    ANDS    R2,R1, #0x10         
+    BEQ     #0x190
+    ANDSNE  R2, R1, #0x01        
+    BEQ    #0x50
+    BNE     #0XC4      
+    SUB R1,R1,R1  
+    SUB R2,R2,R2
+    SUB R3,R3,R3
+    ADD     R2, R1, #0x02      
+    STR     R2, [R0, #0x800]    
+    ADD     R3, R0, #2          
+    SUBS    R3, R3, #1          
+    LDR     R1, [R0, #0x800]    
+    BNE    #0x100
+    ANDS    R2, R1, #0x10       
+    BEQ    #0x1F4
+    ANDSNE  R2, R1, #0x02       
+    BEQ     #0x50 
+    BNE     #0xFC 
+    SUB R1,R1,R1   
+    SUB R2,R2,R2
+    SUB R3,R3,R3
+    ADD     R2, R1, #0x04       
+    STR     R2, [R0, #0x800]    
+    ADD     R3, R0, #2         
+    SUBS    R3, R3, #1                     
+    LDR     R1, [R0, #0x800]               
+    BNE     #0x138
+    ANDS    R2, R1, #0x10      
+    BEQ     #0x2B0
+    ANDSNE  R2, R1, #0x04      
+    BEQ     #0x50
+    BNE     #0x134  
+    SUB R1,R1,R1  
+    SUB R2,R2,R2
+    SUB R3,R3,R3
+    ADD     R2, R1, #0x08      
+    STR     R2, [R0, #0x800]    
+    ADD     R3, R0, #2          
+    SUBS    R3, R3, #1         
+    LDR     R1, [R0, #0x800]   
+    BNE    #0x170
+    ANDS    R2, R1, #0x10       
+    BEQ     #0x310
+    ANDSNE  R2, R1, #0x08      
+    BEQ    #0x50
+    BNE     #0x16C 
+    SUB R1,R1,R1  
+    SUB R5,R5,R5
+    SUB R3,R3,R3
+    SUB R7,R7,r7
+    SUB R8,R8,R8
+    SUB R6,R6,R6
+    LDR r5, [r0, #4]           
+    ADD r7, r0, #12            
+    ADD r8,r0,#16                
+    LDR r9, [r7]                
+    STR r9, [r0, #0x800]        
+    ADD r6,r0,r5                
+    SUBS r6, r6, #1             
+    BNE #0x1C0                 
+    ADD r7, r7, #4              
+    SUBS r8,r8,#1              
+    ADDEQ r7,r0,#12             
+    ADDEQ r8,r8,#16              
+    ADD R3,R0,#0x2             
+    SUBS R3,R3,#1              
+    LDR R1,[R0,#0x800]        
+    BNE #0x1DC
+    ANDS R1,R1,#0x01                       
+    BEQ #0x50
+    BNE #0x1B4  
+    SUB R1,R1,R1  
+    SUB R5,R5,R5
+    SUB R3,R3,R3
+    SUB R4,R4,R4
+    SUB R8,R8,R8
+    SUB R6,R6,R6
+    SUB R7,R7,R7
+    ADD     R4, R0, #7          
+    ADD     R8, R0, #0           
+    ADD     R6, R0, #0x80       
+    STR     R6, [R0, #0x800]                 
+    ADD     R5, R0, #6           
+    ADD     R7, R0, #1          
+    SUBS    R5, R5, R8           
+    BEQ     #0x23C        
+    SUBS    R5, R5, #1          
+    ADD     R7, R7, R7           
+    BNE     #0x230          
+    ADD     R8, R8, #1           
+    SUB     R6, R6, R7          
+    LDR     R9, [R0, #0x4]      
+    SUBS    R9, R9, #1          
+    BNE     #0x248               
+    SUBS    R4, R4, #1         
+    BNE     #0x21C          
+    STR     R6, [R0, 0x800]      
+    ADD     R4, R0, #7          
+    ADD     R3,R0,#0x2          
+    SUBS    R3,R3,#1               
+    LDR     R1,[R0,#0x800]     
+    BNE      #0x264           
+    ANDS    R1,R1,#0x02         
+    BEQ     #0x50              
+    ADD     R6, R6, R6           
+    LDR     R9, [R0, #0x4]       
+    SUBS    R9, R9, #1          
+    BNE     #0x280               
+    STR     R6, [R0, 0x800]      
+    SUBS    R4, R4, #1           
+    BNE     #0x278            
+    ADD     R3,R0,#0x2          
+    SUBS    R3,R3,#1             
+    LDR     R1,[R0,#0x800]     
+    BNE     #0x298         
+    ANDS    R1,R1,#0x02          
+    BEQ     #0x50         
+    BNE     #0x1F4             
+    SUB R1,R1,R1  
+    SUB R5,R5,R5
+    SUB R3,R3,R3
+    SUB R7,R7,r7
+    SUB R4,R4,R4
+    SUB R9,R9,R9
+    ADD r4, r0, #58                      
+    ADD r5, r0, #72             
+    LDR r2, [r5]                 
+    STR r2, [r0, #0x800]         
+    LDR r9, [r0, #4]            
+    SUBS r9, r9, #1             
+    BNE #0x2DC                
+    ADD r5, r5, #4               
+    SUBS r4, r4, #1              
+    ADDEQ r4,r0,#58            
+    ADDEQ r5,r0,#72              
+    ADD R3,R0,#0x2               
+    SUBS R3,R3,#1                
+    LDR  R1,[R0,#0x800]         
+    BNE   #0x2F8             
+    ANDS R1,R1,#0x04             
+    BEQ  #0x50                       
+    BNE  #0x2D0  
+    SUB R1,R1,R1  
+    SUB R3,R3,R3
+    SUB R4,R4,R4
+    SUB R5,R5,R5
+    SUB R6,R6,R6
+    SUB R7,R7,R7
+    SUB R8,R8,R8
+    SUB R0,R0,R0
+    SUB R0,R0,R0
+    ADD     R4, R0, #5       
+    ADD     R8, R0, #0          
+    ADD     R6, R0, #0x80      
+    STR     R6, [R0, #0x800]    
+    ADD     R5, R0, #6        
+    ADD     R7, R0, #1       
+    SUB     R5, R5, R8          
+    SUBS    R5, R5, #1      
+    ADD     R7, R7, R7         
+    BNE          #0x350       
+    ADD     R8, R8, #1         
+    SUB     R6, R6, R7     
+    LDR     R9, [R0, #0x4]     
+    SUBS    R9, R9, #1      
+    BNE     #0x368          
+    SUBS    R4, R4, #1       
+    BNE    #0x340
+    ADD     R6, R0, #0x08       
+    ADD     R4, R0, #3        
+    ADD     R10, R6, R6       
+    ADD     R8, R0, #0          
+    ADD     R3,R0,#0x2          
+    SUBS    R3,R3,#1          
+    LDR     R1,[R0,#0x800]     
+    BNE     #0x38c       
+    ANDS    R1,R1,#0x08        
+    BEQ     #0x50       
+    ADD     R5, R0, #2        
+    ADD     R7, R0, #1          
+    SUBS    R5, R5, R8          
+    BEQ     #0x3BC           
+    SUBS    R5, R5, #1        
+    ADD     R7, R7, R7          
+    BNE     #0x3B0        
+    ADD     R8, R8, #1         
+    SUB     R6, R6, R7          
+    ORR     R11, R10, R6        
+    STR     R11, [R0, 0x800] 
+    ADD     R10, R10, R10      
+    LDR     R9, [R0, #0x8]   
+    SUBS    R9, R9, #1         
+    BNE    #0x3D4            
+    SUBS    R4, R4, #1          
+    BNE     #0x3A0           
+    ADD     R6, R0, #0x00      
+    STR     R6, [R0, 0x800]    
+    LDR     R9, [R0, #0x8]     
+    SUBS    R9, R9, #1         
+    BNE     #0x3F0           
+    ADD     R3,R0,#0x2         
+    SUBS    R3,R3,#1            
+    LDR     R1,[R0,#0x800]     
+    BNE        #0x3FC          
+    ANDS    R1,R1,#0x08        
+    BEQ     #0x50          
+    BNE     #0x310                         
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+
+E04F000F
+E2802001
+E2808003
+E5802800
+E0822002
+E2804002
+E2544001
+E5901800
+1AFFFFFC
+E2116010
+0A000000
+EAFFFFF8
+0211500F
+0A000005
+E2588001
+1AFFFFF2
+EAFFFFFF
+E28070FF
+E5807800
+EAFFFFFC
+E0411001
+E0422002
+E0433003
+E2802080
+E5802800
+E2803002
+E2533001
+E5901800
+1AFFFFFC
+E211200F
+0AFFFFF9
+12112001
+15800800
+1A000009
+02112002
+15800800
+1A000014
+02112004
+15800800
+1A00001F
+02112008
+15800800
+1A00002A
+EAFFFFE7
+E0411001
+E0422002
+E0433003
+E2812001
+E5802800
+E2803002
+E2533001
+E5901800
+1AFFFFFC
+E2112010
+0A00002C
+12112001
+0AFFFFDA
+1AFFFFF6
+E0411001
+E0422002
+E0433003
+E2812002
+E5802800
+E2803002
+E2533001
+E5901800
+1AFFFFFC
+E2112010
+0A000037
+12112002
+0AFFFFCC
+1AFFFFF6
+E0411001
+E0422002
+E0433003
+E2812004
+E5802800
+E2803002
+E2533001
+E5901800
+1AFFFFFC
+E2112010
+0A000058
+12112004
+0AFFFFBE
+1AFFFFF6
+E0411001
+E0422002
+E0433003
+E2812008
+E5802800
+E2803002
+E2533001
+E5901800
+1AFFFFFC
+E2112010
+0A000062
+12112008
+0AFFFFB0
+1AFFFFF6
+E0411001
+E0455005
+E0433003
+E0477007
+E0488008
+E0466006
+E5905004
+E280700C
+E2808010
+E5979000
+E5809800
+E0806005
+E2566001
+1AFFFFFD
+E2877004
+E2588001
+0280700C
+02888010
+E2803002
+E2533001
+E5901800
+1AFFFFFC
+E2111001
+0AFFFF97
+1AFFFFEF
+E0411001
+E0455005
+E0433003
+E0444004
+E0488008
+E0466006
+E0477007
+E2804007
+E2808000
+E2806080
+E5806800
+E2805006
+E2807001
+E0555008
+0A000002
+E2555001
+E0877007
+1AFFFFFC
+E2888001
+E0466007
+E5909004
+E2599001
+1AFFFFFD
+E2544001
+1AFFFFF0
+E5806800
+E2804007
+E2803002
+E2533001
+E5901800
+1AFFFFFC
+E2111002
+0AFFFF75
+E0866006
+E5909004
+E2599001
+1AFFFFFD
+E5806800
+E2544001
+1AFFFFF8
+E2803002
+E2533001
+E5901800
+1AFFFFFC
+E2111002
+0AFFFF68
+1AFFFFD0
+E0411001
+E0455005
+E0433003
+E0477007
+E0444004
+E0499009
+E280403A
+E2805048
+E5952000
+E5802800
+E5909004
+E2599001
+1AFFFFFD
+E2855004
+E2544001
+0280403A
+02805048
+E2803002
+E2533001
+E5901800
+1AFFFFFC
+E2111004
+0AFFFF50
+1AFFFFEF
+E0411001
+E0433003
+E0444004
+E0455005
+E0466006
+E0477007
+E0488008
+E0400000
+E0400000
+E2804005
+E2808000
+E2806080
+E5806800
+E2805006
+E2807001
+E0455008
+E2555001
+E0877007
+1AFFFFFC
+E2888001
+E0466007
+E5909004
+E2599001
+1AFFFFFD
+E2544001
+1AFFFFF1
+E2806008
+E2804003
+E086A006
+E2808000
+E2803002
+E2533001
+E5901800
+1AFFFFFC
+E2111008
+0AFFFF2B
+E2805002
+E2807001
+E0555008
+0A000002
+E2555001
+E0877007
+1AFFFFFC
+E2888001
+E0466007
+E18AB006
+E580B800
+E08AA00A
+E5909008
+E2599001
+1AFFFFFD
+E2544001
+1AFFFFEE
+E2806000
+E5806800
+E5909008
+E2599001
+1AFFFFFD
+E2803002
+E2533001
+E5901800
+1AFFFFFC
+E2111008
+0AFFFF0F
+1AFFFFBE

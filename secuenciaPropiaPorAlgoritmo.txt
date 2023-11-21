@@ -2,28 +2,28 @@
 /------------------------------- Ping Pong --------------------------------/
 /---------------------------------------------------------------------------------/
 
-sec4:       ADD     R4, R0, #5          ; E2804005 ; Movemos un 5 al registro R5, contador del loop1
+sec4:       ADD     R4, R0, #5          ; E2804005 ; Movemos un 5 al registro R5, contador del loop1  ///196
             ADD     R8, R0, #0          ; E2808000 ; Movemos un 0 al registro R8, contador de luces encendidas
             ADD     R6, R0, #0x81       ; E2806081 ; Movemos el valor 0x80 al registro R6, sera nuestro registro de luces  //
 
-loop1:      STR     R6, [R0, #0x800]    ; E5806800 ; Sacamos luz al puerto
-            ADD     R5, R0, #6          ; E2805006 ; Movemos un 6 al registro R5, contador de la division    //modificop y pongo 4
+loop1:      STR     R6, [R0, #0x800]    ; E5806800 ; Sacamos luz al puerto  ////199
+            ADD     R5, R0, #4          ; E2805004 ; Movemos un 6 al registro R5, contador de la division    //modificop y pongo 4
             ADD     R7, R0, #1          ; E2807001 ; Movemos un 1 al registro R7, acumulador de la division
             SUB     R5, R5, R8          ; E0455008 ; Corregimos R5 segun la cantidad de luces que hemos encendido
 
-division:   SUBS    R5, R5, #1          ; E2555001 ; Restamos uno al contador y actualizamos banderas
+division:   SUBS    R5, R5, #1          ; E2555001 ; Restamos uno al contador y actualizamos banderas  //// 203
             ADD     R7, R7, R7          ; E0877007 ; Acumulamos R7
-            BNE     division            ; 1AFFFFFC ;
+            BNE     division  #0x32C          ; 1AFFFFFC ;
 
             ADD     R8, R8, #1          ; E2888001 ; Sumamos uno a R8, correspondiente a la luz encendida
             SUB     R6, R6, R7          ; E0466007 ; Division de R6 por 2
             LDR     R9, [R0, #0x4]      ; E5909004 ; Lectura del delay desde tabla, guardamos en el registro R9
 
-delay       SUBS    R9, R9, #1          ; E2599001 ; Restamos uno al contador y actualizamos banderas
-            BNE     delay               ; 1AFFFFFD ;
+delay       SUBS    R9, R9, #1          ; E2599001 ; Restamos uno al contador y actualizamos banderas     ///209
+            BNE     delay   #0x344             ; 1AFFFFFD ;
 
             SUBS    R4, R4, #1          ; E2544001 ; Restamos uno al contador del loop y actualizamos banderas
-            BNE     loop1               ; 1AFFFFF1 ;
+            BNE     loop1  #0x31C                ; 1AFFFFF1 ;
 
             ADD     R6, R0, #0x02       ; E2806002 ; Movemos a R6 el valor 0x02, correspondiente al segundo led menos significativo  //poner ern 4
             ADD     R4, R0, #3          ; E2804003 ; Movemos un 3 al registro R4, contador del loop2   
@@ -31,21 +31,21 @@ delay       SUBS    R9, R9, #1          ; E2599001 ; Restamos uno al contador y 
             ADD     R8, R0, #0          ; E2808000 ; Volvemos R8 a 0, cumplira el mismo proposito
             ADD     R3,R0,#0x2          ; E2803002 ; Movemos un 2 al registro R3, contador para el bucle de lectura  //modificado por 4
 
-lectura:    SUBS    R3,R3,#1            ; E2533001 ; Restamos uno al contador y actualizamos banderas
+lectura:    SUBS    R3,R3,#1            ; E2533001 ; Restamos uno al contador y actualizamos banderas      ////218
             LDR     R1,[R0,#0x800]      ; E5901800 ; Leemos el puerto, guardando en R1 los valores de los switches y del key_1
-            BNE     lectura             ; 1AFFFFFC ;
+            BNE     lectura   #0x368          ; 1AFFFFFC ;
 
             ANDS    R1,R1,#0x08         ; E2111008 ; Primer mascara, verificamos que el pin_M15 se haya apagado
-            BEQ     sec4              ; 0AFFFF56 ;
+            BEQ     sec4     #0x310         ; 0AFFFF56 ;
 
-loop2:      ADD     R5, R0, #2          ; E2805002 ; Movemos un 2 al registro R5, contador de la division  //modifique puse 6
+loop2:      ADD     R5, R0, #2          ; E2805002 ; Movemos un 2 al registro R5, contador de la division  //modifique puse 6   ////223
             ADD     R7, R0, #1          ; E2807001 ; Movemos un 1 al registro R7, acumulador de la division
             SUBS    R5, R5, R8          ; E0555008 ; Corregimos R5 segun la cantidad de luces que hayamos encendido
-            BEQ     salto               ; 0A000002 ; En caso de ser 0, debemos evitar el loop division
+            BEQ     salto     #0x3B0          ; 0A000002 ; En caso de ser 0, debemos evitar el loop division
 
-division:   SUBS    R5, R5, #1          ; E2555001 ; Restamos uno al contador y actualizamos banderas
+division:   SUBS    R5, R5, #1          ; E2555001 ; Restamos uno al contador y actualizamos banderas     ////227
             ADD     R7, R7, R7          ; E0877007 ; Acumulamos R7
-            BNE     division            ; 1AFFFFFC ;
+            BNE     division   #0x3BC         ; 1AFFFFFC ;
 
             ADD     R8, R8, #1          ; E2888001 ; Sumamos uno a R8, correspondiente a la luz encendida  
             SUB     R6, R6, R7          ; E0466007 ; Division de R6 por 2
@@ -54,26 +54,26 @@ division:   SUBS    R5, R5, #1          ; E2555001 ; Restamos uno al contador y 
             ADD     R10, R10, R10       ; E08AA00A ; Multiplicamos R10 por 2
             LDR     R9, [R0, #0x8]      ; E5909004 ; Lectura del delay desde tabla, guardamos en el registro R9
 
-delay       SUBS    R9, R9, #1          ; E2599001 ; Restamos uno al contador y actualizamos banderas
-            BNE     delay               ; 1AFFFFFD ;
+delay       SUBS    R9, R9, #1          ; E2599001 ; Restamos uno al contador y actualizamos banderas     ///236
+            BNE     delay     #0x3B0          ; 1AFFFFFD ;
 
             SUBS    R4, R4, #1          ; E2544001 ; Restamos uno al contador del loop
-            BNE     loop2               ; 1AFFFFEE ;
+            BNE     loop2     #0x27C          ; 1AFFFFEE ;
 
             ADD     R6, R0, #0x81       ; E2806081 ; Movemos un 0 al registro R6, correspondiente a la ultima luz de la secuencia
             STR     R6, [R0, 0x800]     ; E5806800 ; Sacamos luz al puerto
 
             LDR     R9, [R0, #0x8]      ; E5909004 ; Lectura del delay desde tabla, guardamos en el registro R9  // ver en que parte del dmen esta lo del delay
 
-delay       SUBS    R9, R9, #1          ; E2599001 ; Restamos uno al contador y actualizamos banderas
-            BNE     delay               ; 1AFFFFFD ;
+delay       SUBS    R9, R9, #1          ; E2599001 ; Restamos uno al contador y actualizamos banderas    ///243
+            BNE     delay  #0x3CC             ; 1AFFFFFD ;
 
             ADD     R3,R0,#0x2          ; E2803002 ; Movemos un 2 al registro R3, contador para el bucle de lectura
 
-lectura:    SUBS    R3,R3,#1            ; E2533001 ; Restamos uno al contador y actualizamos banderas
+lectura:    SUBS    R3,R3,#1            ; E2533001 ; Restamos uno al contador y actualizamos banderas         ////246
             LDR     R1,[R0,#0x800]      ; E5901800 ; Leemos el puerto, guardando en R1 los valores de los switches y del key_1
-            BNE     lectura             ; 1AFFFFFC ;
+            BNE     lectura    #0x3D8         ; 1AFFFFFC ;
 
             ANDS    R1,R1,#0x08         ; E2111008 ; Segunda mascara, verificamos que el pin_M15 se haya apagado
-            BEQ     inicio              ; 0AFFFF3D ;
-            BNE     sec4                ; 1AFFFFCA ; De no haberse apagado, repetimos la secuencia
+            BEQ     inicio     #0x50         ; 0AFFFF3D ;
+            BNE     sec4       #0x310         ; 1AFFFFCA ; De no haberse apagado, repetimos la secuencia
